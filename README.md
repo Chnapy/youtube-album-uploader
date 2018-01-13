@@ -1,4 +1,4 @@
-# youtube-album-uploader
+# youtube-album-uploader-multiple
 
 **WIP** - The original youtube-album-uploader create a compilation of the album. This fork create a video per file.
 
