@@ -1,7 +1,7 @@
 {
-	"name": "youtube-album-uploader",
-	"version": "0.3.0",
-	"description": "Uploads an mp3 album to Youtube",
+	"name": "youtube-album-uploader-multiple",
+	"version": "0.0.1",
+	"description": "Uploads an mp3 album to Youtube in multiple videos",
 	"preferGlobal": true,
 	"scripts": {
 		"test": "mocha --recursive test",
@@ -16,15 +16,15 @@
 		"album",
 		"music"
 	],
-	"homepage": "https://github.com/jpchip/youtube-album-uploader",
-	"author": "Jared Chapiewsky <chapiewsky@earthlinginteractive.com>",
+	"homepage": "https://github.com/Chnapy/youtube-album-uploader-multiple",
+	"author": "Richard Haddad <contact@richardhaddad.fr>",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/jpchip/youtube-album-uploader.git"
+		"url": "https://github.com/Chnapy/youtube-album-uploader-multiple.git"
 	},
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/jpchip/youtube-album-uploader/issues"
+		"url": "https://github.com/Chnapy/youtube-album-uploader-multiple/issues"
 	},
 	"devDependencies": {
 		"chai": "^3.4.1",
