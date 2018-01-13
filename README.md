@@ -1,5 +1,7 @@
 # youtube-album-uploader
 
+**WIP** - The original youtube-album-uploader create a compilation of the album. This fork create a video per file.
+
 [![Build
 Status](https://travis-ci.org/jpchip/youtube-album-uploader.svg?branch=master)](https://travis-ci.org/jpchip/youtube-album-uploader)
 
