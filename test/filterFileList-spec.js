@@ -9,7 +9,7 @@ describe('filterFileList', function() {
 		var results;
 		beforeEach(function(done) {
 			this.timeout(50000);
-			filterFileList('test', 'mp3', function(err, data) {
+			filterFileList('test', ['mp3'], function(err, data) {
 				if (data) {
 					results = data;
 				}
