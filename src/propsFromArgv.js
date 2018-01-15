@@ -1,7 +1,9 @@
 /**
- * youtube-album-uploader-multiple --help --albumPaths path1 path2 --albumRecursive true
+ * @example youtube-album-uploader-multiple --help --albumPaths path1 path2 --albumRecursive true
  *
- * Wait these args:
+ * Parse the user arguments and return a properties object.
+ *
+ * Wait these args (maybe more; check DEFAULT_PROPS in start.js):
  * {
  *     help: void;
  *     albumPaths: string[]; default: []
@@ -13,7 +15,9 @@
  *     desc: string; default: '{filename}'
  * }
  *
- * @param argv
+ * You can simply add a property with his function. Check the 2nd part of the file, you'll understand quickly ;)
+ *
+ * @param {string[]} argv
  */
 module.exports = function (argv) {
     var index = 2;
@@ -52,43 +56,61 @@ module.exports = function (argv) {
             props.error = 'no command specified. Please use --help if needed.';
             return;
         }
-        switch (command) {
-            case 'help':
-                help(params, props);
-                break;
-            case 'albumPaths':
-                albumPaths(params, props);
-                break;
-            case 'albumRecursive':
-                albumRecursive(params, props);
-                break;
-            case 'coverPaths':
-                coverPaths(params, props);
-                break;
-            case 'coverPathsRelative':
-                coverPathsRelative(params, props);
-                break;
-            case 'output':
-                output(params, props);
-                break;
-            case 'title':
-                title(params, props);
-                break;
-            case 'desc':
-                desc(params, props);
-                break;
-            case 'outputDir':
-                outputDir(params, props);
-                break;
-            default:
-                _default(params, props, command);
-                break;
+        if (commandList[command]) {
+            commandList[command](params, props);
+        } else {
+            _default(params, props, command);
         }
+        // switch (command) {
+        //     case 'help':
+        //         help(params, props);
+        //         break;
+        //     case 'albumPaths':
+        //         albumPaths(params, props);
+        //         break;
+        //     case 'albumRecursive':
+        //         albumRecursive(params, props);
+        //         break;
+        //     case 'coverPaths':
+        //         coverPaths(params, props);
+        //         break;
+        //     case 'coverPathsRelative':
+        //         coverPathsRelative(params, props);
+        //         break;
+        //     case 'output':
+        //         output(params, props);
+        //         break;
+        //     case 'title':
+        //         title(params, props);
+        //         break;
+        //     case 'desc':
+        //         desc(params, props);
+        //         break;
+        //     case 'outputDir':
+        //         outputDir(params, props);
+        //         break;
+        //     case 'privacy':
+        //         privacy(params, props);
+        //         break;
+        //     case 'cleanOnEnd':
+        //         cleanOnEnd(params, props);
+        //         break;
+        //     case 'tags':
+        //         tags(params, props);
+        //         break;
+        //     case 'categoryId':
+        //         categoryId(params, props);
+        //         break;
+        //     default:
+        //         _default(params, props, command);
+        //         break;
+        // }
     }
 
-    var p = compute({});
-    return p;
+    return compute({});
 };
+
+var commandList = {};
 
 function parseListPath(paths) {
     return paths.map(function (p) {
@@ -106,26 +128,27 @@ function _default(params, props, command) {
     props.error = 'command not recognized: ' + command + '. Please use --help if needed.';
 }
 
-function help(params, props) {
+commandList.help = function (params, props) {
+    //TODO
     props.help = 'List of commands:' +
         '\n\t--help\tshow this list\ndon\'t need any arg' +
         '\n\t--albumPaths\tpaths that will be check for the album content\nneed one or more paths';
-}
+};
 
-function albumPaths(params, props) {
+commandList.albumPaths = function (params, props) {
     params = parseListPath(params);
     if (!params.length) {
         errorParams(props, 'albumPaths');
     } else {
         props.albumPaths = params;
     }
-}
+};
 
-function albumRecursive(params, props) {
-    if (params.length !== 1) {
+commandList.albumRecursive = function (params, props) {
+    if (params.length > 1) {
         errorParams(props, 'albumRecursive');
     } else {
-        if (params[0] === 'true' || params[0] === '1') {
+        if (!params.length || params[0] === 'true' || params[0] === '1') {
             props.albumRecursive = true;
         } else if (params[0] === 'false' || params[0] === '0') {
             props.albumRecursive = false;
@@ -133,22 +156,22 @@ function albumRecursive(params, props) {
             errorParams(props, 'albumRecursive');
         }
     }
-}
+};
 
-function coverPaths(params, props) {
+commandList.coverPaths = function (params, props) {
     params = parseListPath(params);
     if (!params.length) {
         errorParams(props, 'coverPaths');
     } else {
         props.coverPaths = params;
     }
-}
+};
 
-function coverPathsRelative(params, props) {
-    if (params.length !== 1) {
+commandList.coverPathsRelative = function (params, props) {
+    if (params.length > 1) {
         errorParams(props, 'coverPathsRelative');
     } else {
-        if (params[0] === 'true' || params[0] === '1') {
+        if (!params.length || params[0] === 'true' || params[0] === '1') {
             props.coverPathsRelative = true;
         } else if (params[0] === 'false' || params[0] === '0') {
             props.coverPathsRelative = false;
@@ -156,9 +179,9 @@ function coverPathsRelative(params, props) {
             errorParams(props, 'coverPathsRelative');
         }
     }
-}
+};
 
-function output(params, props) {
+commandList.output = function (params, props) {
     if (params.length !== 1) {
         errorParams(props, 'output');
     } else {
@@ -168,28 +191,93 @@ function output(params, props) {
             errorParams(props, 'output');
         }
     }
-}
+};
 
-function title(params, props) {
-    if(!params.length) {
+commandList.title = function (params, props) {
+    if (!params.length) {
         errorParams(props, 'title');
     } else {
         props.title = params.join(' ');
     }
-}
+};
 
-function desc(params, props) {
-    if(!params.length) {
+commandList.desc = function (params, props) {
+    if (!params.length) {
         errorParams(props, 'desc');
     } else {
         props.desc = params.join(' ');
     }
-}
+};
 
-function outputDir(params, props) {
-    if(params.length !== 1) {
+commandList.privacy = function (params, props) {
+    if (params.length !== 1) {
+        errorParams(props, 'privacy');
+    } else {
+        props.privacy = params[0];
+    }
+};
+
+commandList.outputDir = function (params, props) {
+    if (params.length !== 1) {
         errorParams(props, 'outputDir');
     } else {
         props.outputDir = params[0];
     }
-}
+};
+
+commandList.credentials = function (params, props) {
+    if (params.length !== 1) {
+        errorParams(props, 'credentials');
+    } else {
+        props.credentials = params[0];
+    }
+};
+
+commandList.cleanOnEnd = function (params, props) {
+    if (params.length > 1) {
+        errorParams(props, 'cleanOnEnd');
+    } else {
+        if (!params.length || params[0] === 'true' || params[0] === '1') {
+            props.cleanOnEnd = true;
+        } else if (params[0] === 'false' || params[0] === '0') {
+            props.cleanOnEnd = false;
+        } else {
+            errorParams(props, 'cleanOnEnd');
+        }
+    }
+};
+
+commandList.tags = function (params, props) {
+    params = parseListPath(params);
+    props.tags = params;
+};
+
+commandList.categoryId = function (params, props) {
+    if (params.length !== 1 || isNaN(params[0])) {
+        errorParams(props, 'categoryId');
+    } else {
+        props.categoryId = params[0];
+    }
+};
+
+commandList.port = function (params, props) {
+    if (params.length !== 1 || isNaN(params[0])) {
+        errorParams(props, 'port');
+    } else {
+        props.port = params[0];
+    }
+};
+
+commandList.noUpload = function (params, props) {
+    if (params.length > 1) {
+        errorParams(props, 'noUpload');
+    } else {
+        if (!params.length || params[0] === 'true' || params[0] === '1') {
+            props.noUpload = true;
+        } else if (params[0] === 'false' || params[0] === '0') {
+            props.noUpload = false;
+        } else {
+            errorParams(props, 'noUpload');
+        }
+    }
+};

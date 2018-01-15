@@ -1,13 +1,22 @@
 # youtube-album-uploader-multiple
 
-**WIP** - The original youtube-album-uploader create a compilation of the album. This fork create a video per file.
+But please, call it YAUM.
+
+It is a fork of **[youtube-album-uploader](https://github.com/jpchip/youtube-album-uploader)** (created by [jpchip](https://github.com/jpchip), good job guy !).
+
+Where the original youtube-album-uploader create a compilation of the album in a single video, YAUM create one video per music file and upload them all.
+YAUM is also a lot more configurable and personnalizable (recursive dir browse, multiple cover, path to credentials...).
+
+A second goal to this tools will be to permit to create a compilation like youtube-album-uploader does, but with the flexibility of YAUM.
+
+**WIP**
 
 [![Build
-Status](https://travis-ci.org/jpchip/youtube-album-uploader.svg?branch=master)](https://travis-ci.org/jpchip/youtube-album-uploader)
+Status](https://travis-ci.org/Chnapy/youtube-album-uploader-multiple.svg?branch=master)](https://travis-ci.org/Chnapy/youtube-album-uploader-multiple)
 
-A node CLI to upload an mp3 album to youtube. 
+A node CLI to upload multiple mp3 files to youtube. 
 
-`youtube-album-uploader "/path/to/music/folder"`
+`youtube-album-uploader-multiple --albumPaths "my/path" "my/other/path" --coverPaths "cover/path" "other/cover/path" --credentials "path/to/cred.json"`
 
 ## Getting Started
 
@@ -24,33 +33,146 @@ If you happen to already have a CLIENT_ID, PROJECT_ID, and CLIENT_SECRET you can
 
 ## Installation
 
-You can install youtube-album-uploader using npm:
+You can install YAUM using npm:
 
-    npm install -g youtube-album-uploader
+    npm install -g youtube-album-uploader-multiple
     
 ## Usage 
 
-Just pass the path to the directory containing your music. 
+**Windows users, please use "" for paths.**
 
-    youtube-album-uploader "path/to/album/folder"
+**Relative paths always begin in the root directory of YAUM.**
 
-on windows, maybe something like:
+### The easy way
 
-    youtube-album-uploader "C:\Documents and Settings\user\My Documents\My Music\music\My Own Band\My Bands Album"
+    youtube-album-uploader-multiple --albumPaths "path/to/folder" --coverPaths "path/to/cover.jpg"
 
-It will look for a `folder.jpg` in the directory to use as the background of the created video.
+It will get all music files in `path/to/folder` and for each YAUM will create a video with `path/to/cover.jpg` as background image.
+The title of each video will be the name of the music file, and default descriptions, tags, and category will be used. 
+The authenticate will be done with credentials.json (in root of YAUM folder).
 
-When it finishes creating the video your browser should open and prompt you to sign in with your Google account and give youtube-album-uploader permission to upload on your behalf.
+### The powerful way (and much funnier !)
 
-When everything is done you should get a `Video uploaded successfully!` message. You might have to manually kill the process after that (it's a known issue, sorry).
+    youtube-album-uploader-multiple 
+    --help
+    --albumPaths "path/to/folder" "or/to/file.mp3" "or/twice" 
+    --coverPaths "first/cover.jpg" "second/cover.jpg" "and/more.jpg" 
+    --albumRecursive
+    --coverPathsRelative
+    --outputDir "where/videos/will/go"
+    --credentials "path/to/credentials.json"
+    --cleanOnEnd
+    --noUpload
+    --port 5994
+    --title "title of youtube video with {filename}"
+    --desc "description of youtube video with {filename}"
+    --privacy "private"
+    --tags rock soundtrack whatever
+    --categoryId 10
+    --output "multiple"
+    
+Don't worry, all of that is optional but `--albumPaths` and `--coverPaths`.
+Explanation.
 
-## Sponsors
+#### Arguments is power
 
-Development is sponsored by [Earthling Interactive](http://earthlinginteractive.com/).
+* `--help`
+
+Use it alone. It will show you all the arguments you can use with YAUM.
+
+* `--albumPaths "path/to/folder" "or/to/file.mp3" "or/twice"`
+
+Need a minimum of 1 path. YAUM will use these music files, or, if directory, the content of it.
+
+* `--coverPaths "first/cover.jpg" "second/cover.jpg" "and/more.jpg"`
+
+Need a minimum of 1 path. YAUM will use these pictures as background image for youtube videos.
+If multiple pictures are given, they will be shared to all videos like a loop.
+
+* `--albumRecursive`
+
+Use as that it is equivalent as `--albumRecursive true` or `--albumRecursive 1`. 
+If specified and true, the folders, if isset, specified in `--albumPaths` will be browsed by YAUM recursively (deep browse).
+You can explicitly turn off that with `--albumRecursive false` or `--albumRecursive 0`.
+Default value: `false`.
+
+* `--coverPathsRelative`
+
+Use similar as `--albumRecursive`.
+If specified and true, the cover will be search in the album folder specified (so you have to specify a folder for your music files).
+With this, `--coverPaths` should have only one path !
+Default value: `false`.
+
+* `--outputDir "where/videos/will/go"`
+
+Need exactly 1 path. Specify the folder where all videos will be stocked. The folder can exist or not, whatever. 
+But if he exists, he should to be empty, whereas the operation will fail (nothing will be delete).
+Default value: `yaumExport`.
+
+* `--credentials "path/to/credentials.json"`
+
+Need exactly 1 path. Specify the JSON file where the youtube authenticate are written. 
+You can also, instead of a path, specify directly the content of the file following the JSON format `{...}`.
+Default value: `./credentials.json`.
+
+* `--cleanOnEnd`
+
+Use similar as `--albumRecursive`.
+If specified and true, all files will be delete at the end of the process, after all the uploads end.
+Default value: `true`.
+
+* `--noUpload`
+
+Use similar as `--albumRecursive`.
+If specified and true, the created videos will not be upload to youtube.
+Default value: `false`.
+
+* `--port 5994`
+
+Need exactly 1 port number, higher than 0. The port specified will be used by the local server used to connect the app to youtube.
+This arg can be useful if the default port is already used by an other application.
+Default value: `5994`.
+
+* `--title "title of youtube video with {filename}"`
+
+Need exactly 1 string. Title of all youtube videos. You can insert the name of the current file with `{filename}`.
+Default value: `{filename}`.
+
+* `--desc "description of youtube video with {filename}"`
+
+Need exactly 1 string. Description of all youtube videos. You can insert the name of the current file with `{filename}`.
+Use `\n` for line breaks.
+Default value: `{filename}\n\nThis video was created and uploaded with youtube-album-uploader-multiple (YAUM).`.
+
+* `--privacy "private"`
+
+Need exactly 1 string. Privacy of all youtube videos. Keep it `private` if you don't want to spam your subscribers.
+Default value: `private`.
+
+* `--tags rock soundtrack whatever`
+
+Need a minimum of 0 tags (so can be empty). Specify the youtube tags for all videos.
+Default value: `YAUM`.
+
+* `--categoryId 10`
+
+Need exactly 1 number. Specify the youtube category for all videos. For example, 10 is for Music.
+Default value: `10`.
+
+* `--output "multiple"`
+
+Need exactly 1 string: `multiple` or `allinone`. Define the comportment of the app. `multiple` will create one video per music file, then upload them. 
+`allinone` will create a single video compiling all music files, like `youtube-album-uploader` does.
+**For now, `allinone` mode don't work and is disabled.**
+Default value: `multiple`.
+
+---
+
+When it finishes creating all videos your browser should open and prompt you to sign in with your Google account and give YAUM permission to upload on your behalf.
 
 ## Questions
 
-If you have any questions, just [open an issue](https://github.com/jpchip/youtube-album-uploader/issues/new).
+If you have any questions, just [open an issue](https://github.com/Chnapy/youtube-album-uploader-multiple/issues/new).
 
 ## Disclaimer
 

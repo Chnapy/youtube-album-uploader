@@ -3,26 +3,31 @@ var Youtube = require("youtube-api"),
     Lien = require("lien");
 
 /**
+ * Upload a video to Youtube, then call the callback.
+ *
  * @param {Lien} lien
  * @param {object} options
  * @param {string} videoPath (eg. video.mp4)
- * @param {upload~requestCallback} callback
+ * @param {function} callback
  */
 module.exports = function (lien, options, videoPath, callback) {
 
-    var title = options.title || '';
-    var description = options.description || 'video upload via youtube-album-uploader-multiple';
-    var privacyStatus = options.privacyStatus || "private";
+    var title = options.title,
+        description = options.description,
+        privacyStatus = options.privacyStatus,
+        tags = options.tags,
+        categoryId = options.categoryId;
 
-    // And finally upload the video! Yay!
+    // Finally upload the video! Yay!
     Youtube.videos.insert({
         resource: {
             // Video title and description
             snippet: {
                 title: title,
-                description: description
+                description: description,
+                tags: tags,
+                categoryId: categoryId
             },
-            // I don't want to spam my subscribers
             status: {
                 privacyStatus: privacyStatus
             }
@@ -40,10 +45,3 @@ module.exports = function (lien, options, videoPath, callback) {
         callback(err, data);
     });
 };
-
-/**
- * This callback is displayed as part of the upload class.
- * @callback upload~requestCallback
- * @param {null|*} err
- * @param {object} data the video resource
- */

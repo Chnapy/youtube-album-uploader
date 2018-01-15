@@ -4,6 +4,8 @@ var FfmpegCommand = require('fluent-ffmpeg');
 
 /**
  * Gets all mp3s in a directory and concats them into output file.
+ * Used only in 'allinone' mode.
+ *
  * @param {string} directory (eg. /path/to/music/folder)
  * @param {string} output (eg. output.mp3)
  * @param {function} callback

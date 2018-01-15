@@ -1,16 +1,18 @@
 {
   "name": "youtube-album-uploader-multiple",
-  "version": "0.0.1",
-  "description": "Uploads an mp3 album to Youtube in multiple videos",
+  "version": "0.1.0",
+  "description": "Uploads multiple mp3 files to youtube",
   "preferGlobal": true,
   "scripts": {
     "test": "mocha --recursive test",
     "test-start": "mocha test/start-spec.js",
     "test-albumInfo": "mocha test/albumInfo-spec.js",
+    "test-propsFromArgv": "mocha test/propsFromArgv-spec.js",
     "lint": "eslint src"
   },
   "bin": {
-    "youtube-album-uploader-multiple": "index.js"
+    "youtube-album-uploader-multiple": "index.js",
+    "yaum": "index.js"
   },
   "keywords": [
     "mp3",

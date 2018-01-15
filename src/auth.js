@@ -5,15 +5,23 @@ var Youtube = require("youtube-api"),
     Opn = require("opn");
 
 /**
+ * Authenticate to Youtube (need the browser to open and the action of user).
+ * Then call the callback.
+ *
  * @param {Lien} server
  * @param {object} props
- * @param {upload~requestCallback} callback
+ * @param {function} callback
  */
 module.exports = function (server, props, callback) {
-    var credentialsPath = props.credentials;
+    var CREDENTIALS;
+    if(props.credentials[0] === '{') {
+        CREDENTIALS = JSON.parse(props.credentials);
+    }else {
+        var credentialsPath = props.credentials;
 
-    // Copy the downloaded JSON file in `credentials.json`
-    var CREDENTIALS = ReadJson(credentialsPath);
+        // Copy the downloaded JSON file in `credentials.json`
+        CREDENTIALS = ReadJson(credentialsPath);
+    }
 
     // Authenticate using the credentials
     var oauth = Youtube.authenticate({

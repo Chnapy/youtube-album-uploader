@@ -4,9 +4,11 @@ var path = require('path');
 /**
  * Searches directory for files with given extension.
  * callback returns list of matching filenames in directory.
+ * Used only in 'allinone' mode.
+ *
  * @param {string} directory (eg. /path/to/music)
  * @param {string | string[]} extension (eg. 'mp3' or ['mp3', 'wav'])
- * @param {filterFileList~requestCallback} callback
+ * @param {function} callback
  */
 module.exports = function (directory, extension, callback) {
     extension = extension.constructor.name === 'Array' ? extension : [extension];
@@ -29,10 +31,3 @@ module.exports = function (directory, extension, callback) {
         callback(err, results);
     });
 };
-
-/**
- * This callback is displayed as part of the filterFileList class.
- * @callback filterFileList~requestCallback
- * @param {null|*} err
- * @param {array} data list of found file names
- */

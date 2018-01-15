@@ -1,7 +1,9 @@
 var fs = require('fs');
 
 /**
- * Creates video description based on track list
+ * Creates video description based on track list.
+ * Used only in 'allinone' mode.
+ *
  * @param {array} tracks
  */
 module.exports = function (tracks) {

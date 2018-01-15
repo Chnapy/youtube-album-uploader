@@ -1,13 +1,18 @@
 #! /usr/bin/env node
 
 /**
- * Main file of application. Giving a path to a folder of mp3s,
- * tries to concat them together, create a video, and upload it to youtube.
- * @example youtube-album-uploader "/path/to/music/folder"
- * @example node index.js "/path/to/music/folder"
+ * Main file of application.
+ * Giving args, then act in consequences.
+ * @example youtube-album-uploader --albumPaths "my/path" "my/other/path" --coverPaths "cover/path" "other/cover/path"
  */
 
+/**
+ * Props by default. Overwritten by the user'props when he call the app.
+ *
+ * @type {{help: undefined, albumPaths: Array, albumRecursive: boolean, coverPaths: Array, coverPathsRelative: boolean, output: string, title: string, desc: string, outputDir: string, credentials: string}}
+ */
 var DEFAULT_PROPS = {
+    port: 5994,
     help: undefined,
     albumPaths: [],
     albumRecursive: false,
@@ -15,16 +20,19 @@ var DEFAULT_PROPS = {
     coverPathsRelative: false,
     output: 'multiple',
     title: '{filename}',
-    desc: '{filename}',
+    desc: '{filename}\n\nThis video was created and uploaded with youtube-album-uploader-multiple (YAUM).',
+    privacy: 'private',
     outputDir: 'yaumExport',
-    credentials: 'credentials.json'
+    credentials: 'credentials.json',
+    cleanOnEnd: true,
+    tags: ['YAUM'],
+    categoryId: 10,  //Music
+    noUpload: false
 };
 
-var LIEN_PROPS = {
-    host: 'localhost',
-    port: 5994
-};
-
+/**
+ * Lib and other files
+ */
 var concatMp3s = require('./concatMp3s'),
     propsFromArgv = require('./propsFromArgv'),
     allPaths = require('./allPaths'),
@@ -35,53 +43,36 @@ var concatMp3s = require('./concatMp3s'),
     path = require('path'),
     auth = require('./auth'),
     Lien = require("lien"),
-    upload = require('./upload');
+    upload = require('./upload'),
+    checkProps = require('./checkProps'),
+    multiple = require('./multiple');
 
-module.exports = function start(argv, finalCallback) {
+/**
+ * Main function.
+ * Return false if error.
+ * @param argv
+ * @returns {boolean}
+ */
+module.exports = function start(argv) {
 
     var userProps = Object.assign({}, DEFAULT_PROPS, propsFromArgv(argv));
-    if (!checkProps(userProps)) {
+    if (!checkProps(userProps, DEFAULT_PROPS)) {
         return false;
     }
 
-    console.log('props checked');
-
     if (userProps.output === 'allinone') {
-        allinone(userProps);
+        //not working atm
+        // allinone(userProps);
+        console.warn('--output=allinone doesn\'t work in this version. Please upgrade if possible, or wait :(');
+        return false;
     } else {
-        return multiple(userProps);
-    }
-
-    function checkProps(props) {
-        if (props.error) {
-            console.log(props.error);
-            return false;
-        }
-        if (props.help) {
-            console.log(props.help);
-            return false;
-        }
-        if (!props.albumPaths.length) {
-            //aucun path renseigné
-            console.log('albumPaths error');
-            return false;
-        }
-        if (!props.coverPaths.length) {
-            //aucun path renseigné
-            console.log('coverPaths error');
-            return false;
-        }
-        if (props.coverPathsRelative && props.coverPaths.length > 1) {
-            console.log('coverPathsRelative error');
-            //un unique path est requis
-            return false;
-        }
-        if (props.output === 'allinone' && props.coverPaths.length > 1) {
-            //un unique path est requis
-            console.log('output error');
-            return false;
-        }
-        return true;
+        return multiple(userProps)
+            .then(function () {
+                console.log('END WITH SUCCESS.');
+            })
+            .catch(function () {
+                console.log('END WITH FAILURE.');
+            });
     }
 
     /**
@@ -91,128 +82,13 @@ module.exports = function start(argv, finalCallback) {
         if (fs.lstatSync(path).isFile()) {
             fs.unlink(path);
         }
-        // if (fs.lstatSync('album.mp4').isFile()) {
-        //     fs.unlink('album.mp4');
-        // }
     }
 
-    function multiple(props) {
-        console.log('\nGO\n')
-        var paths = allPaths(props);
-        if (!paths) {
-            return false;
-        }
-
-        try {
-            fs.mkdirSync(props.outputDir);
-        } catch (err) {
-        }
-
-        // console.log('Get album infos...', paths);
-
-        return new Promise(function (mainResolve, mainRevert) {
-
-            return Promise.all(paths.map(function (dPath) {
-                return new Promise(function (resolve, revert) {
-                    // console.log('infos...', dPath);
-                    albumInfo(dPath.music, dPath.cover)
-                        .then(function (albumData) {
-                            console.log('then', albumData);
-                            if (!albumData) {
-                                revert('Could not read metadata of mp3s in given path.');
-                                return;
-                            }
-
-                            // console.log('Get infos of' + dPath.music + '...');
-
-                            var basename = path.basename(dPath.music, path.extname(dPath.music));
-
-                            var outputPath = path.join(props.outputDir, basename + '.mp4');
-
-                            console.log('Creating video of ' + dPath.music + ' to ' + outputPath + ' (this will take awhile)...');
-                            convert(albumData.albumArt, dPath.music, outputPath, function (err, convertSuccess) {
-                                if (err) {
-                                    cleanUp(outputPath);
-                                    revert(err);
-                                    return;
-                                }
-
-                                resolve({
-                                    outputPath: outputPath,
-                                    basename: basename
-                                });
-
-                                // console.log('Uploading Video...');
-                                //
-                                // var uploadOptions = {
-                                //     title: props.title.replace(/({filename})/g, basename),
-                                //     description: props.desc.replace(/({filename})/g, basename)
-                                // };
-                                //
-                                // var server = new Lien(LIEN_PROPS);
-                                //
-                                // auth(server, props, function(err, tokens) {
-                                //     upload(server, props, outputPath, function (err, videoObj) {
-                                //         if (err) {
-                                //             cleanUp(outputPath);
-                                //             revert(err);
-                                //             return;
-                                //         }
-                                //         console.log('Video uploaded successfully!');
-                                //         // cleanUp(outputPath);
-                                //
-                                //         resolve(convertSuccess);
-                                //     });
-                                // });
-                            });
-                        })
-                        .catch(function (err) {
-                            console.log('catch', err);
-                            revert(err);
-                        });
-                    // console.log('ai', ai);
-                });
-            }))
-                .then(function (data) {
-
-                    console.log('All videos are created.');
-                    console.log('It\'s time to upload them to youtube. Please give us the auth.');
-
-                    var server = new Lien(LIEN_PROPS);
-
-                    auth(server, props, function (err, lien) {
-
-                        console.log('You are auth yeah ! All upload will begin.');
-
-                        data.forEach(function (out) {
-
-                            var uploadOptions = {
-                                title: props.title.replace(/({filename})/g, out.basename),
-                                description: props.desc.replace(/({filename})/g, out.basename)
-                            };
-
-                            upload(lien, uploadOptions, out.outputPath, function (err, videoObj) {
-                                if (err) {
-                                    cleanUp(out.outputPath);
-                                    revert(err);
-                                    return;
-                                }
-                                console.log('Video uploaded successfully!');
-                                // cleanUp(outputPath);
-
-                                mainResolve(videoObj);
-                            });
-
-                        });
-                    });
-
-                })
-                .catch(function (err) {
-                    mainRevert(err);
-                });
-        });
-    }
-
+    /**
+     * Function used when --ouput=allinone
+     *
+     * @param {object} props
+     */
     function allinone(props) {
         var albumDir = props.albumPaths[0];
 
@@ -253,6 +129,7 @@ module.exports = function start(argv, finalCallback) {
                             }
                             console.log('Video uploaded successfully!');
                             cleanUp();
+                            return true;
                         });
                     });
                 });

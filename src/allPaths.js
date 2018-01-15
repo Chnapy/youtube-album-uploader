@@ -1,8 +1,13 @@
 var fs = require('file-system');
 var path = require('path');
-
 var fileExists = require('./fileExists');
 
+/**
+ * Get list of all paths of tracks and covers from props.
+ *
+ * @param {object} props
+ * @returns {{music: string, cover: string}[] | false} doublePaths
+ */
 module.exports = function allPaths(props) {
     var recursive = props.albumRecursive,
         cPaths = props.coverPaths,
