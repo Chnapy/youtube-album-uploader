@@ -33,6 +33,11 @@ module.exports = function (props) {
 
     return new Promise(function (mainResolve, mainRevert) {
 
+        console.log();
+        console.log('We will create all the videos (' + paths.length + ').');
+        console.log('For that it will be done ' + props.parallelProcess + ' by ' + props.parallelProcess + '.');
+        console.log('Let\'s go.\n');
+
         // return Promise.all(paths.map(function (dPath) {
         //     return new Promise(function (resolve, revert) {
         //         albumInfo(dPath.music, dPath.cover)
@@ -139,19 +144,21 @@ module.exports = function (props) {
 };
 
 function computeConvert(paths, props, data) {
-    return new Promise(function (resolve, revert) {
+    data = data || [];
+    var cutPaths = paths.slice(props.parallelProcess);
+    var selectedPaths = paths.slice(0, props.parallelProcess);
+    return new Promise(function (mainResolve, mainRevert) {
 
         // console.log('compute', paths, data);
-        data = data || [];
-        var cutPaths = paths.slice(props.parallelProcess);
-        var selectedPaths = paths.slice(0, props.parallelProcess);
         if (!selectedPaths.length) {
             // console.log('end', data, selectedPaths, cutPaths, paths);
-            resolve(data);
+            mainResolve(data);
             return;
         }
 
-        Promise.all(selectedPaths.map(function (dPath) {
+        console.log('---');
+
+        return Promise.all(selectedPaths.map(function (dPath) {
             return new Promise(function (resolve, revert) {
                 albumInfo(dPath.music, dPath.cover)
                     .then(function (albumData) {
@@ -173,6 +180,8 @@ function computeConvert(paths, props, data) {
                                 return;
                             }
 
+                            console.log('Video created', outputPath);
+
                             resolve({
                                 outputPath: outputPath,
                                 basename: basename
@@ -184,13 +193,22 @@ function computeConvert(paths, props, data) {
                         revert(err);
                     });
             });
-        })).then(function(d) {
-            data = data.concat(d);
-            return computeConvert(cutPaths, props, data);
-        }).catch(function(err) {
-            revert(err);
+        })).then(function (d) {
+            mainResolve(d);
+        }).catch(function (err) {
+            mainRevert(err);
         });
 
+    }).then(function (d) {
+        // console.log('THEN')
+        console.log('---\n');
+        data = data.concat(d);
+        if (!cutPaths.slice(0, props.parallelProcess).length) {
+            // console.log('END');
+            return data;
+        } else {
+            return computeConvert(cutPaths, props, data);
+        }
     });
 }
 
