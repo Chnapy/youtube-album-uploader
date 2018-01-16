@@ -27,7 +27,8 @@ var DEFAULT_PROPS = {
     cleanOnEnd: true,
     tags: ['YAUM'],
     categoryId: 10,  //Music
-    noUpload: false
+    noUpload: false,
+    parallelProcess: 4
 };
 
 /**

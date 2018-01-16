@@ -75,6 +75,7 @@ The authenticate will be done with credentials.json (in root of YAUM folder).
     --privacy "private"
     --tags rock soundtrack whatever
     --categoryId 10
+    --parallelProcess 4
     --output "multiple"
     
 Don't worry, all of that is optional but `--albumPaths` and `--coverPaths`.
@@ -146,9 +147,10 @@ Default value: `{filename}`.
 
 * `--desc "description of youtube video with {filename}"`
 
-Need exactly 1 string. Description of all youtube videos. You can insert the name of the current file with `{filename}`.
+Need exactly 1 string. Description of all youtube videos. 
+You can insert the name of the current file with `{filename}` and some credits to YAUM `{credits}`.
 Use `\n` for line breaks.
-Default value: `{filename}\n\nThis video was created and uploaded with youtube-album-uploader-multiple (YAUM).`.
+Default value: `{filename}\n\n{credits}`.
 
 * `--privacy "private"`
 
@@ -164,6 +166,12 @@ Default value: `YAUM`.
 
 Need exactly 1 number. Specify the youtube category for all videos. For example, 10 is for Music.
 Default value: `10`.
+
+* `--parallelProcess 4`
+
+Need exactly 1 number, higher than 0. Specify the number of video convert process running in the same time. 
+**Be careful, a number too high for your CPU may cause some troubles to your computer !**
+Default value: `4`.
 
 * `--output "multiple"`
 

@@ -281,3 +281,25 @@ commandList.noUpload = function (params, props) {
         }
     }
 };
+
+commandList.noUpload = function (params, props) {
+    if (params.length > 1) {
+        errorParams(props, 'noUpload');
+    } else {
+        if (!params.length || params[0] === 'true' || params[0] === '1') {
+            props.noUpload = true;
+        } else if (params[0] === 'false' || params[0] === '0') {
+            props.noUpload = false;
+        } else {
+            errorParams(props, 'noUpload');
+        }
+    }
+};
+
+commandList.parallelProcess = function(params, props) {
+    if (params.length !== 1 || isNaN(params[0])) {
+        errorParams(props, 'parallelProcess');
+    } else {
+        props.parallelProcess = params[0];
+    }
+};

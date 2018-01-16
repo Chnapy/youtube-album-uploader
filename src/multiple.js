@@ -33,40 +33,41 @@ module.exports = function (props) {
 
     return new Promise(function (mainResolve, mainRevert) {
 
-        return Promise.all(paths.map(function (dPath) {
-            return new Promise(function (resolve, revert) {
-                albumInfo(dPath.music, dPath.cover)
-                    .then(function (albumData) {
-                        // console.log('then', albumData);
-                        if (!albumData) {
-                            revert('Could not read metadata of mp3s in given path.');
-                            return;
-                        }
-
-                        var basename = path.basename(dPath.music, path.extname(dPath.music));
-
-                        var outputPath = path.join(props.outputDir, basename + '.mp4');
-
-                        console.log('Creating video from ' + dPath.music + ' to ' + outputPath + ' (this may take awhile)...');
-                        convert(albumData.albumArt, dPath.music, outputPath, function (err, convertSuccess) {
-                            if (err || !convertSuccess) {
-                                cleanUp(outputPath);
-                                revert(err);
-                                return;
-                            }
-
-                            resolve({
-                                outputPath: outputPath,
-                                basename: basename
-                            });
-                        });
-                    })
-                    .catch(function (err) {
-                        // console.log('catch', err);
-                        revert(err);
-                    });
-            });
-        }))
+        // return Promise.all(paths.map(function (dPath) {
+        //     return new Promise(function (resolve, revert) {
+        //         albumInfo(dPath.music, dPath.cover)
+        //             .then(function (albumData) {
+        //                 // console.log('then', albumData);
+        //                 if (!albumData) {
+        //                     revert('Could not read metadata of mp3s in given path.');
+        //                     return;
+        //                 }
+        //
+        //                 var basename = path.basename(dPath.music, path.extname(dPath.music));
+        //
+        //                 var outputPath = path.join(props.outputDir, basename + '.mp4');
+        //
+        //                 console.log('Creating video from ' + dPath.music + ' to ' + outputPath + ' (this may take awhile)...');
+        //                 convert(albumData.albumArt, dPath.music, outputPath, function (err, convertSuccess) {
+        //                     if (err || !convertSuccess) {
+        //                         cleanUp(outputPath);
+        //                         revert(err);
+        //                         return;
+        //                     }
+        //
+        //                     resolve({
+        //                         outputPath: outputPath,
+        //                         basename: basename
+        //                     });
+        //                 });
+        //             })
+        //             .catch(function (err) {
+        //                 // console.log('catch', err);
+        //                 revert(err);
+        //             });
+        //     });
+        // }))
+        return computeConvert(paths, props)
             .then(function (data) {
 
                 console.log('All videos are now created (' + data.length + ').');
@@ -136,6 +137,62 @@ module.exports = function (props) {
             });
     });
 };
+
+function computeConvert(paths, props, data) {
+    return new Promise(function (resolve, revert) {
+
+        // console.log('compute', paths, data);
+        data = data || [];
+        var cutPaths = paths.slice(props.parallelProcess);
+        var selectedPaths = paths.slice(0, props.parallelProcess);
+        if (!selectedPaths.length) {
+            // console.log('end', data, selectedPaths, cutPaths, paths);
+            resolve(data);
+            return;
+        }
+
+        Promise.all(selectedPaths.map(function (dPath) {
+            return new Promise(function (resolve, revert) {
+                albumInfo(dPath.music, dPath.cover)
+                    .then(function (albumData) {
+                        // console.log('then', albumData);
+                        if (!albumData) {
+                            revert('Could not read metadata of mp3s in given path.');
+                            return;
+                        }
+
+                        var basename = path.basename(dPath.music, path.extname(dPath.music));
+
+                        var outputPath = path.join(props.outputDir, basename + '.mp4');
+
+                        console.log('Creating video from ' + dPath.music + ' to ' + outputPath + ' (this may take awhile)...');
+                        convert(albumData.albumArt, dPath.music, outputPath, function (err, convertSuccess) {
+                            if (err || !convertSuccess) {
+                                cleanUp(outputPath);
+                                revert(err);
+                                return;
+                            }
+
+                            resolve({
+                                outputPath: outputPath,
+                                basename: basename
+                            });
+                        });
+                    })
+                    .catch(function (err) {
+                        // console.log('catch', err);
+                        revert(err);
+                    });
+            });
+        })).then(function(d) {
+            data = data.concat(d);
+            return computeConvert(cutPaths, props, data);
+        }).catch(function(err) {
+            revert(err);
+        });
+
+    });
+}
 
 /**
  * Removes any temporary files

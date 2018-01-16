@@ -76,8 +76,12 @@ function check(props) {
         console.log('output error');
         return false;
     }
-    if (props.port < 0) {
+    if (props.port <= 0) {
         console.log('port error');
+        return false;
+    }
+    if (props.parallelProcess <= 0) {
+        console.log('parallelProcess error');
         return false;
     }
     return true;
