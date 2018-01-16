@@ -1,4 +1,3 @@
-
 var concatMp3s = require('./concatMp3s'),
     propsFromArgv = require('./propsFromArgv'),
     allPaths = require('./allPaths'),
@@ -12,6 +11,8 @@ var concatMp3s = require('./concatMp3s'),
     upload = require('./upload'),
     checkProps = require('./checkProps'),
     multiple = require('./multiple');
+
+var CREDITS = 'This video was created and uploaded with youtube-album-uploader-multiple (YAUM).';
 
 /**
  * Function used when --ouput=multiple.
@@ -48,7 +49,7 @@ module.exports = function (props) {
 
                         console.log('Creating video from ' + dPath.music + ' to ' + outputPath + ' (this may take awhile)...');
                         convert(albumData.albumArt, dPath.music, outputPath, function (err, convertSuccess) {
-                            if (err) {
+                            if (err || !convertSuccess) {
                                 cleanUp(outputPath);
                                 revert(err);
                                 return;
@@ -68,10 +69,11 @@ module.exports = function (props) {
         }))
             .then(function (data) {
 
-                console.log('All videos are created.');
-                console.log('It\'s time to upload them to youtube. Please give us the auth.');
+                console.log('All videos are now created (' + data.length + ').');
+                console.log();
+                console.log('It\'s time to upload them to youtube. Please give us the auth (your browser should open very soon).');
 
-                if(props.noUpload) {
+                if (props.noUpload) {
                     console.log('Wait, I see that you don\'t want to upload them. Okay, so we have finished. Bye !');
                     return mainResolve();
                 }
@@ -84,33 +86,48 @@ module.exports = function (props) {
                 auth(server, props, function (err, lien) {
 
                     console.log('You are auth yeah ! All upload will begin.');
+                    console.log();
 
-                    data.forEach(function (out) {
+                    Promise.all(data.map(function (out, index) {
 
-                        var uploadOptions = {
-                            title: props.title.replace(/({filename})/g, out.basename),
-                            description: props.desc.replace(/({filename})/g, out.basename),
-                            privacyStatus: props.privacy,
-                            tags: props.tags,
-                            categoryId: props.categoryId
-                        };
+                        return new Promise(function (resolve, revert) {
 
-                        console.log('Upload of ' + out.outputPath + ' ...');
-                        upload(lien, uploadOptions, out.outputPath, function (err, videoObj) {
-                            if (err) {
-                                cleanUp(out.outputPath);
-                                revert(err);
-                                return;
-                            }
-                            console.log('Video uploaded successfully!', out.outputPath);
-                            if (props.cleanOnEnd) {
-                                cleanUp(out.outputPath);
-                            }
+                            var uploadOptions = {
+                                title: props.title.replace(/({filename})/g, out.basename),
+                                description: props.desc.replace(/({filename})/g, out.basename).replace(/({credits})/g, CREDITS),
+                                privacyStatus: props.privacy,
+                                tags: props.tags,
+                                categoryId: props.categoryId
+                            };
 
-                            mainResolve(videoObj);
+                            console.log('[' + (index + 1) + '/' + data.length + '] Start the upload of ' + out.outputPath + ' ...');
+                            console.log();
+                            upload(lien, uploadOptions, out.outputPath, function (err) {
+                                if (err) {
+                                    cleanUp(out.outputPath);
+                                    revert(err);
+                                    return;
+                                }
+                                console.log('[' + (index + 1) + '/' + data.length + '] Video uploaded successfully!', out.outputPath);
+                                if (props.cleanOnEnd) {
+                                    cleanUp(out.outputPath);
+                                }
+
+                                resolve();
+                            });
+
+
                         });
-
-                    });
+                    }))
+                        .then(function () {
+                            console.log('\nAll videos were uploaded.');
+                            lien.end();
+                            mainResolve();
+                        })
+                        .catch(function (err) {
+                            lien.end();
+                            mainRevert(err);
+                        });
                 });
 
             })

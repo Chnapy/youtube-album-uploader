@@ -41,7 +41,13 @@ You can install YAUM using npm:
 
 **Windows users, please use "" for paths.**
 
-**Relative paths always begin in the root directory of YAUM.**
+### Shorter is better
+
+    youtube-album-uploader-multiple ...
+    
+    yaum ...
+    
+It's the same.
 
 ### The easy way
 

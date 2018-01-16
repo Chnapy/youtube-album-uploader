@@ -20,7 +20,7 @@ var DEFAULT_PROPS = {
     coverPathsRelative: false,
     output: 'multiple',
     title: '{filename}',
-    desc: '{filename}\n\nThis video was created and uploaded with youtube-album-uploader-multiple (YAUM).',
+    desc: '{filename}\n\n{credits}',
     privacy: 'private',
     outputDir: 'yaumExport',
     credentials: 'credentials.json',
@@ -60,6 +60,10 @@ module.exports = function start(argv) {
         return false;
     }
 
+    showProps(userProps);
+
+    console.log();
+
     if (userProps.output === 'allinone') {
         //not working atm
         // allinone(userProps);
@@ -68,10 +72,13 @@ module.exports = function start(argv) {
     } else {
         return multiple(userProps)
             .then(function () {
-                console.log('END WITH SUCCESS.');
+                console.log('End of the main process with success. The asynchronous ones may still be active.');
+                process.exit(0);
             })
-            .catch(function () {
-                console.log('END WITH FAILURE.');
+            .catch(function (err) {
+                console.log(err);
+                console.log('End of the main process with failure.');
+                process.exit(-1);
             });
     }
 
@@ -142,3 +149,11 @@ module.exports = function start(argv) {
     return true;
 
 };
+
+function showProps(props) {
+    console.log('Properties {');
+    Object.keys(props).forEach(function (k) {
+        console.log('\t', k, ':', props[k]);
+    });
+    console.log('}');
+}

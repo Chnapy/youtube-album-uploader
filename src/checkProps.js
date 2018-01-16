@@ -17,6 +17,8 @@ module.exports = function (props, defaultProps) {
     props.coverPaths = Array.from(new Set(props.coverPaths));
     props.tags = Array.from(new Set(props.tags.concat(defaultProps.tags)));
 
+    props.desc = props.desc.replace(/(\\n)/g, '\n');
+
     if (props.credentials[0] !== '{') {
         //is a file path
         if (!fileExists(props.credentials)) {
@@ -26,17 +28,17 @@ module.exports = function (props, defaultProps) {
     }
 
     try {
-        var err = false;
+        var errr = false;
         fs.readdirSync(props.outputDir, function (err, files) {
             if (err) {
                 console.log(err);
-                err = true;
+                errr = true;
             } else if (files.length) {
                 console.log('outputDir is not empty', props.outputDir);
-                err = true;
+                errr = true;
             }
         });
-        if (err) {
+        if (errr) {
             return false;
         }
     } catch (e) {

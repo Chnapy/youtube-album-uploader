@@ -1,5 +1,5 @@
 var Youtube = require("youtube-api"),
-    Fs = require("fs"),
+    fs = require("fs"),
     Lien = require("lien");
 
 /**
@@ -19,7 +19,7 @@ module.exports = function (lien, options, videoPath, callback) {
         categoryId = options.categoryId;
 
     // Finally upload the video! Yay!
-    Youtube.videos.insert({
+    var req = Youtube.videos.insert({
         resource: {
             // Video title and description
             snippet: {
@@ -36,12 +36,30 @@ module.exports = function (lien, options, videoPath, callback) {
         part: "snippet,status",
         // Create the readable stream to upload the video
         media: {
-            body: Fs.createReadStream(videoPath)
+            body: fs.createReadStream(videoPath)
         }
-    }, function (err, data) {
+    }, function (err) {
         if (err) {
-            return lien.end(err, 400);
+            console.error(err);
+            lien.end(err, 400);
+            callback(err);
         }
-        callback(err, data);
     });
+
+    var fileSize = fs.statSync(videoPath).size;
+    // show some progress
+    var id = setInterval(function () {
+        var uploadedBytes = req.req.connection._bytesDispatched;
+        var uploadedMBytes = uploadedBytes / 1000000;
+        var progress = uploadedBytes > fileSize
+            ? 100 : (uploadedBytes / fileSize) * 100;
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write('\t' + videoPath + ' ..... ' + progress + '% - ' + uploadedMBytes.toFixed(2) + '/' + (fileSize / 1000000).toFixed(2) + 'MBs uploaded.');
+        if (progress === 100) {
+            process.stdout.write('\n\t' + videoPath + ' ..... Done.\n');
+            clearInterval(id);
+            callback();
+        }
+    }, 1000);
 };

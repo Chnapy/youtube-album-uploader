@@ -20,11 +20,11 @@ module.exports = function allPaths(props) {
 
     var run = true;
 
-    function addDoublePath(filepath) {
+    function addDoublePath(filepath, dirpath) {
         var doublePath = {
             music: filepath,
             cover: cRelative
-                ? path.join(filepath, cPaths[0])
+                ? path.join(dirpath, cPaths[0])
                 : cPaths[cIndex % cPaths.length]
         };
         if (!fileExists(doublePath.cover)) {
@@ -38,17 +38,32 @@ module.exports = function allPaths(props) {
 
     props.albumPaths.forEach(function (apath) {
 
+        if (!fs.existsSync(apath)) {
+            console.log('File or directory doesn\'t exist:', apath);
+            run = false;
+            return run;
+        }
+
+        var computeFile = function (filepath, apath) {
+            var valExt = path.extname(filepath);
+            for (var i = 0; i < extensions.length; i++) {
+                if (valExt.toLowerCase() === '.' + extensions[i].toLowerCase()) {
+                    addDoublePath(filepath, apath);
+                    return;
+                }
+            }
+            console.log('No file is compatible in ', apath, '. Only files with these extensions can be used: ', extensions);
+        };
+
+        if (fileExists(apath)) {
+            return computeFile(apath);
+        }
+
         if (recursive) {
             fs.recurseSync(apath, function (filepath, relative, filename) {
                 if (filename) {
                     // it's file
-                    var valExt = path.extname(filepath);
-                    for (var i = 0; i < extensions.length; i++) {
-                        if (valExt.toLowerCase() === '.' + extensions[i].toLowerCase()) {
-                            addDoublePath(path.join(filepath));
-                            break;
-                        }
-                    }
+                    computeFile(filepath, apath);
                 } else {
                     // it's folder
                 }
@@ -65,13 +80,7 @@ module.exports = function allPaths(props) {
             }
 
             list.forEach(function (filepath) {
-                var valExt = path.extname(filepath);
-                for (var i = 0; i < extensions.length; i++) {
-                    if (valExt.toLowerCase() === '.' + extensions[i].toLowerCase()) {
-                        addDoublePath(path.join(apath, filepath));
-                        break;
-                    }
-                }
+                computeFile(path.join(apath, filepath), apath);
             });
         }
 
