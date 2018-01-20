@@ -55,7 +55,7 @@ It's the same.
 
 It will get all music files in `path/to/folder` and for each YAUM will create a video with `path/to/cover.jpg` as background image.
 The title of each video will be the name of the music file, and default descriptions, tags, and category will be used. 
-The authenticate will be done with credentials.json (in root of YAUM folder).
+The authenticate will be done with credentials.json.
 
 ### The powerful way (and much funnier !)
 
