@@ -75,7 +75,7 @@ The authenticate will be done with credentials.json (in root of YAUM folder).
     --privacy "private"
     --tags rock soundtrack whatever
     --categoryId 10
-    --parallelProcess 4
+    --parallelProcess 1
     --output "multiple"
     
 Don't worry, all of that is optional but `--albumPaths` and `--coverPaths`.
@@ -167,11 +167,11 @@ Default value: `YAUM`.
 Need exactly 1 number. Specify the youtube category for all videos. For example, 10 is for Music.
 Default value: `10`.
 
-* `--parallelProcess 4`
+* `--parallelProcess 1`
 
 Need exactly 1 number, higher than 0. Specify the number of video convert process running in the same time. 
 **Be careful, a number too high for your CPU may cause some troubles to your computer !**
-Default value: `4`.
+Default value: `1`.
 
 * `--output "multiple"`
 
