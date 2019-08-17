@@ -4,7 +4,6 @@
   "description": "Uploads multiple mp3 files to youtube",
   "scripts": {
     "test": "mocha --recursive test",
-    "test-start": "mocha test/start-spec.js",
     "test-albumInfo": "mocha test/albumInfo-spec.js",
     "test-propsFromArgv": "mocha test/propsFromArgv-spec.js",
     "lint": "eslint src"
