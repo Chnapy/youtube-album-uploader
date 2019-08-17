@@ -64,8 +64,6 @@ module.exports = function allPaths(props) {
                 if (filename) {
                     // it's file
                     computeFile(filepath, apath);
-                } else {
-                    // it's folder
                 }
             });
         } else {

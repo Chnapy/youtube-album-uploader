@@ -61,50 +61,6 @@ module.exports = function (argv) {
         } else {
             _default(params, props, command);
         }
-        // switch (command) {
-        //     case 'help':
-        //         help(params, props);
-        //         break;
-        //     case 'albumPaths':
-        //         albumPaths(params, props);
-        //         break;
-        //     case 'albumRecursive':
-        //         albumRecursive(params, props);
-        //         break;
-        //     case 'coverPaths':
-        //         coverPaths(params, props);
-        //         break;
-        //     case 'coverPathsRelative':
-        //         coverPathsRelative(params, props);
-        //         break;
-        //     case 'output':
-        //         output(params, props);
-        //         break;
-        //     case 'title':
-        //         title(params, props);
-        //         break;
-        //     case 'desc':
-        //         desc(params, props);
-        //         break;
-        //     case 'outputDir':
-        //         outputDir(params, props);
-        //         break;
-        //     case 'privacy':
-        //         privacy(params, props);
-        //         break;
-        //     case 'cleanOnEnd':
-        //         cleanOnEnd(params, props);
-        //         break;
-        //     case 'tags':
-        //         tags(params, props);
-        //         break;
-        //     case 'categoryId':
-        //         categoryId(params, props);
-        //         break;
-        //     default:
-        //         _default(params, props, command);
-        //         break;
-        // }
     }
 
     return compute({});

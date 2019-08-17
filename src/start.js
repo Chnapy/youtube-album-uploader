@@ -66,7 +66,7 @@ module.exports = function start(argv) {
     console.log();
 
     if (userProps.output === 'allinone') {
-        //not working atm
+        // not working atm
         // allinone(userProps);
         console.warn('--output=allinone doesn\'t work in this version. Please upgrade if possible, or wait :(');
         return false;

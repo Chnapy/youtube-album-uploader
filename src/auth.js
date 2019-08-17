@@ -39,7 +39,6 @@ module.exports = function (server, props, callback) {
 
     // Here we're waiting for the OAuth2 redirect containing the auth code
     server.page.add("/oauth2callback", function (lien) {
-        //console.log("Trying to get the token using the following code: " + lien.search.code);
 
         // Get the access token
         oauth.getToken(lien.search.code, function (err, tokens) {

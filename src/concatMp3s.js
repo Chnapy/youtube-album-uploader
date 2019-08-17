@@ -25,11 +25,9 @@ module.exports = function (directory, output, callback) {
 
         command
             .on('error', function (err) {
-                //console.log('An error occurred: ' + err.message);
                 callback(err, false);
             })
             .on('end', function () {
-                //console.log('Finished concating');
                 callback(err, true);
             })
             .mergeToFile(output, directory);
