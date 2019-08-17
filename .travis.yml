@@ -1,10 +1,12 @@
 before_script:
- - chmod +x tools/test-travis.sh
+  - chmod +x tools/test-travis.sh
 script:
   - tools/test-travis.sh
 language: node_js
 node_js:
   - 4.1
+  - 8
+  - 9
 
 branches:
   only:
