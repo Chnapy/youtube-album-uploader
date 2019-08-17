@@ -9,8 +9,6 @@ YAUM is also a lot more configurable and personnalizable (recursive dir browse, 
 
 A second goal to this tools will be to permit to create a compilation like youtube-album-uploader does, but with the flexibility of YAUM.
 
-**WIP**
-
 [![Build
 Status](https://travis-ci.org/Chnapy/youtube-album-uploader-multiple.svg?branch=master)](https://travis-ci.org/Chnapy/youtube-album-uploader-multiple)
 
