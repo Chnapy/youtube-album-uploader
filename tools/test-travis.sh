@@ -8,7 +8,7 @@ set -e
 echo travis_fold:start:Dependencies
 
 wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
-tar xf ffmpeg-git-64bit-static.tar.xz
+tar xf ffmpeg-git-amd64-static.tar.xz
 
 mkdir -p $HOME/bin
 cp ffmpeg-git-*-static/{ffmpeg,ffprobe} $HOME/bin
